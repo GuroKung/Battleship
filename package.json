@@ -4,26 +4,32 @@
   "description": "api",
   "main": "app.js",
   "scripts": {
-    "start": "node server.js",
-    "start:w": "nodemon --debug server.js",
+    "start": "node src/app.js --exec babel-node --presets es2015,stage-2",
+    "start:w": "nodemon src/app.js --exec babel-node --presets es2015,stage-2",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GuroKung/Battleship.git"
+    "url": "git+https://github.com/GuroKung/battleship.git"
   },
   "author": "GuroKung",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/GuroKung/Battleship/issues"
+    "url": "https://github.com/GuroKung/battleship/issues"
   },
-  "homepage": "https://github.com/GuroKung/Battleship#readme",
+  "homepage": "https://github.com/GuroKung/battleship#readme",
   "dependencies": {
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "lodash": "^4.17.4",
     "mongoose": "^4.9.7"
   },
   "devDependencies": {
-    "nodemon": "^1.11.0"
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "mocha": "^3.3.0",
+    "nodemon": "^1.11.0",
+    "supertest": "^3.0.0"
   }
 }
