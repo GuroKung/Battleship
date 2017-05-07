@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/app.js --exec babel-node --presets es2015,stage-2",
     "start:w": "nodemon src/app.js --exec babel-node --presets es2015,stage-2",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "babel-node node_modules/.bin/jasmine",
+    "test:unit": "babel-node node_modules/.bin/jasmine spec/unit"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,7 @@
     "babel-cli": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
-    "mocha": "^3.3.0",
+    "jasmine": "^2.6.0",
     "nodemon": "^1.11.0",
     "supertest": "^3.0.0"
   }

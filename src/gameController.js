@@ -1,6 +1,7 @@
-import _ from 'lodash';
+'use strict';
 
-import db from './db';
+const _ = require('lodash');
+const db = require('./db');
 
 class GameController {
     constructor (boardSize = 10) {
@@ -11,7 +12,10 @@ class GameController {
 
     createBoardGame(size) {
         // create 2D array board game
-        // TODO: Create New game in DB
+        /* TODO:
+        1. Create game 2d array 
+        2. Create New game in DB
+        3.  */
         var arr = [];
 
         for (var i = 0; i < size; i++) {
@@ -52,4 +56,4 @@ class GameController {
     }
 }
 
-export default GameController;
+module.exports = GameController;
