@@ -1,8 +1,8 @@
 import Piece from './piece';
 
 class Cruiser extends Piece {
-    constructor(){
-        super('cruiser', 3)
+    constructor(name){
+        super(name, 3)
     }
 }
 

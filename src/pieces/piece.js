@@ -1,18 +1,26 @@
 class Piece {
-    constructor(type, size){
-        this.type = type;
+    constructor(name, size){
+        this.name = name;
         this.size = size;
-        this.owner = owner;
+        this.isPlaced = false;
     }
 
-    getType() {
-        return this.type;
+    getName() {
+        return this.name;
     }
 
     getSize() {
         return this.size;
     }
 
+    isPlaced(){
+        return this.isPlaced;
+    }
+
+    setPlacesStatus(status){
+        this.isPlaced = status;
+    }
+
 }
 
-export default Piece;
+module.exports = Piece;
