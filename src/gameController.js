@@ -4,23 +4,19 @@ const _ = require('lodash');
 const db = require('./db');
 const Piece = require('./pieces/piece');
 
-const STATUS = {
-    'PLACE': 1,
-    'ATTACK': 2
-}
+const STATUS = { DEFENDER: 1 , ATTACKER: 2 } 
 
 class GameController {
     constructor (boardSize = 10) {
         this.boardGame = this.createBoardGame(boardSize);
         this.boardSize = boardSize;
-        this.status = STATUS.PLACE;
+        this.status = STATUS.DEFENDER;
 
-        this.pieces = {
-            battleship : [new Piece('Battleship', 4)],
-            cruisers : [new Piece('Cruiser', 3), new Piece('Cruiser', 3)],
-            destroyers: [new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Destroyer', 2)],
-            submarines: [new Piece('Submarine', 1), new Piece('Submarine', 1), new Piece('Submarine', 1) , new Piece('Submarine', 1)]
-        } 
+        this.pieces = [ 
+            new Piece('Battleship', 4), new Piece('Cruiser', 3), new Piece('Cruiser', 3),
+            new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Submarine', 1), 
+            new Piece('Submarine', 1), new Piece('Submarine', 1) , new Piece('Submarine', 1) 
+        ]
 
         // console.log("GAME START");
      }
@@ -40,17 +36,30 @@ class GameController {
         return arr;
     }
     
-    updateBoardGame(){
+    updateBoardGame(y, x, piece, axis){
         /* TODO:
         - update current board game 
         - update current pieces
         - create game history 
         */
+        for (var i = 0; i < piece.getSize(); i++) {
+            if (axis == 'H') {
+                this.boardGame[y][x + i] = piece;
+            }
+            else if (axis == 'V') {
+                this.boardGame[y + i][x] = piece;
+            }
+        }
+        _.pull(this.pieces, piece);
+        console.log('UPDATED BOARD');
+        console.log(JSON.stringify(this.boardGame));
+        console.log('UPDATED PIECES', this.pieces);
+        
     }
 
     playerMove(x, y, piece, axis) {
         /*  
-        STATE: PLACE
+        STATE: DEFENDER
         --------------------------------------------------
         1. check if overlap or be placed directly adjacent
         2. place a piece
@@ -66,15 +75,18 @@ class GameController {
         var transX = this.positionAdapter(x,y).x;
         var transY = this.positionAdapter(x,y).y;
 
-        if(this.getStatus() == STATUS.PLACE) {
+        if(this.getStatus() == STATUS.DEFENDER) {
             if (!this.isOverlapped(transY,transX, piece, axis) && !this.isDirectlyAdjacent(transY,transX, piece, axis)){
+                this.updateBoardGame(transY,transX, piece, axis);
+                console.log("CAN PLACE A PIECE");
                 return { status: 'success', message : `Successfully place a piece on position X:${x} Y:${y}` }
             }
             else {
+                console.log("CAN'T PLACE A PIECE BYE");
                 return { status: 'error' , message : `Cannot place a piece on position X:${x} Y:${y}, Please try agian` }
             }
         }
-        else if (this.getStatus() == STATUS.ATTACK) {
+        else if (this.getStatus() == STATUS.ATTACKER) {
             // implement
         }
         else {
@@ -129,7 +141,7 @@ class GameController {
 
     endGame(){
         /* TODO: 
-        1. show game results
+        1. show game results > complete game in X moves
         2. change status in DB that this game is ended */
     }
 
@@ -143,6 +155,18 @@ class GameController {
 
     getBoardSize(){
         return this.boardSize;
+    }
+
+    getData(){ 
+        /*
+        return {
+            gameId: xx,
+            status: 'DEFENDER',
+            boardSize: 10,
+            board: [],
+            attackerMoves: 0
+        }
+        */
     }
 }
 

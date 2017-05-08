@@ -1,5 +1,5 @@
 var GameContoller = require('../../src/gameController');
-
+var Piece = require('../../src/pieces/piece');
 
 describe('GameContoller', function() {
 
@@ -35,33 +35,28 @@ describe('GameContoller', function() {
             expect(gameController.createBoardGame(10).length).toBe(10);
         });
 
-        it('should create new game in db', function () {
-            expect(false).toBe(true);
-        });
+        // it('should create new game in db', function () {
+        //     expect(false).toBe(true);
+        // });
 
     });
 
-    // describe('#getBoardGame()', function () {
-    //     it('should show empty board game', function () {
-    //         expect(false).toBe(true);
-    //     });
+    describe('#updateBoardGame()', function () {
+        // it('update current board game and remove from avaliable pieces', function () {
+        //     gameController.pieces = [ new Piece('Mock', 2), new Piece('Mock', 2) ]  
+        //     expect(gameController.pieces.length).toBe(3);
+        //     var moved = gameController.pieces[0];
+        //     gameController.updateBoardGame(2, 2 , moved, 'H');
+        //     expect(gameController.pieces.length).toBe(2);
+        //     expect(gameController.board[2][2]).toBe(moved);
+        //     expect(gameController.board[2][3]).toBe(moved);
+        // });
 
-    //     it('should show current postion in board game', function () {
-    //         // gameController player moves 2-3 pieces
-    //         expect(false).toBe(true);
-    //     });
-    // });
-
-    // describe('#updateBoardGame()', function () {
-    //     it('update current board game', function () {
-    //         expect(false).toBe(true);
-    //     });
-
-    //     it('update game data in db', function () {
-    //         // gameController player moves 2-3 pieces
-    //         expect(false).toBe(true);
-    //     });
-    // });
+        // it('update game data in db', function () {
+        //     // gameController player moves 2-3 pieces
+        //     expect(false).toBe(true);
+        // });
+    });
 
     describe('#playerMove(x, y, piece, axis)', function () {
 
@@ -94,9 +89,18 @@ describe('GameContoller', function() {
                 expect(gameController.playerMove(4,5,mockPiece,'V').message).toBe('Cannot place a piece on position X:4 Y:5, Please try agian');
             });
 
-            // it('should succesfully place a piece on square', function () {
-            //     expect(false).toBe(true);
-            // });
+            it('should succesfully place a piece on square when moved to 3 3', function () {
+                var moved = gameController.playerMove(3,3,mockPiece,'V');
+                expect(moved.status).toBe('success');
+                expect(moved.message).toBe('Successfully place a piece on position X:3 Y:3');
+            });
+
+            it('should succesfully place a piece on square when moved to 4 3', function () {
+                var moved = gameController.playerMove(4,3,mockPiece,'H');
+
+                expect(moved.status).toBe('success');
+                expect(moved.message).toBe('Successfully place a piece on position X:4 Y:3');
+            });
 
             // it('should update board', function () {
             //     expect(false).toBe(true);
