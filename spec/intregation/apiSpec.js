@@ -7,11 +7,12 @@ const app = require('../../src/app');
 
 describe('POST /api/startgame', function () {
 
-    it('returns a game infomation', function () {
+    it('returns a game infomation', function (done) {
         return request(app)
             .post('/api/startgame')
             .set('Accept', 'application/json')
             .expect(200)
+            .expect('Content-Type', /json/)
             .then(res => {
                 expect(res.body.key.length).toBe(16);
                 expect(res.body.status).toBe(1);
@@ -73,6 +74,18 @@ describe('POST /api/startgame', function () {
                     }
                 ])).toBe(true);
                 expect(res.body.key.message).toBe("Battleship game start");
+                done();
             })
+    })
+})
+
+describe('GET /api/:gameKey', function () {
+
+    it('returns a game infomation', function (done) {
+        return request(app)
+            .get('/api/xxyyzz')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200, done)
     })
 })

@@ -2,6 +2,8 @@ const express = require('express');
 const _ = require('lodash');
 
 const GameController = require('../src/gameController');
+const GameModel = require('../models/game');
+const HistoryModel = require('../models/history');
 
 var api = express.Router();
 
@@ -10,7 +12,6 @@ api.get('/', function(req, res) {
 });
 
 api.post('/startgame', function(req, res) {
-    console.log('START GAME');
     const game = new GameController();
     let gameData = {};
     gameData = game.getData();
@@ -18,9 +19,14 @@ api.post('/startgame', function(req, res) {
     res.json(gameData);
 });
 
-api.get('/game/:gameId', function(req, res) {
-    res.send("Welcome to Battleship game");
-    //game info and current game state.
+api.get('/game/:gameKey', function(req, res) {
+    let gameData = {};
+    let gameKey = req.params.gameKey;
+    GameModel.find().getByGameKey(gameKey)
+    .then((gameData) => {
+        res.send(gameData);
+    })
+    .catch((err) => console.error(err));
 });
 
 api.put('/game/:gameId/move', function(req, res) {
