@@ -10,6 +10,7 @@ describe('GameContoller', function() {
 
     var gameController;
     var mockPiece = {
+        size: 2,
         getName: function () { return 'Mock' },
         getSize: function () { return 2 },
         isPlaced: false

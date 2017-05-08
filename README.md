@@ -81,15 +81,15 @@ _For DEFENDER Move_
     "content": {
         "status": 1,
         "position" : {
-            "x" : 0,
+            "x" : 1,
             "y": 1
         },
         "meta": {
             "piece": {
                 "size": 4,
                 "name": "Battleship"
-            }
-            "axis" : "V"
+            },
+            "axis" : "H"
         }
     }
 }
@@ -102,7 +102,7 @@ _For ATTACKER Move_
     "content": {
         "status": 2,
         "position" : {
-            "x" : 0,
+            "x" : 1,
             "y": 1
         }
     }

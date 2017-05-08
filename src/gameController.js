@@ -67,7 +67,7 @@ class GameController {
         - update current pieces
         - update game board in DB
         */
-        for (var i = 0; i < piece.getSize(); i++) {
+        for (var i = 0; i < piece.size; i++) {
             if (axis == 'H') {
                 this.boardGame[y][x + i] = piece;
             }
@@ -75,10 +75,19 @@ class GameController {
                 this.boardGame[y + i][x] = piece;
             }
         }
-        _.pull(this.pieces, piece);
+
+        for (var i = 0; i < this.pieces.length; i++) {
+            if(this.pieces[i].name == piece.name) {
+               this.pieces.splice(i,1)
+               break; 
+            }
+        }
 
         // should handle updated & return updated document
-        GameModel.findOneAndUpdate({ key: this.key }, { boardGame: _.flatten(this.boardGame) });
+        GameModel.findOneAndUpdate({ key: this.key }, { boardGame: _.flatten(this.boardGame), pieces: this.pieces })
+        .exec((err, game) =>{
+            if(err) console.log('ERROR: ', err);
+        });
 
         // console.log('UPDATED BOARD');
         // console.log(this.printBoardGame());
@@ -105,7 +114,7 @@ class GameController {
         var transY = this.positionAdapter(x,y).y;
 
         if(this.getStatus() == STATUS.DEFENDER) {
-            if (!this.isOverlapped(transY,transX, piece.getSize(), axis) && !this.isDirectlyAdjacent(transY,transX, piece.getSize(), axis)){
+            if (!this.isOverlapped(transY, transX, piece.size, axis) && !this.isDirectlyAdjacent(transY, transX, piece.size, axis)){
                 this.updateBoardGame(transY,transX, piece, axis);
                 if(this.pieces.length == 0){
                     this.status = STATUS.ATTACKER;

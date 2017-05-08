@@ -23,16 +23,19 @@ api.post('/startgame', function(req, res) {
 api.get('/game/:gameKey', function(req, res) {
     let gameData = {};
     let gameKey = req.params.gameKey;
-    GameModel.find().getByGameKey(gameKey)
-    .then((gameData) => res.send(gameData))
-    .catch((err) => {
-        console.error(err)
-        res.status(400).send({ error : err});
-    });
+    if (gameKey) {
+        GameModel.find().getByGameKey(gameKey)
+            .then((gameData) => res.send(gameData))
+            .catch((err) => {
+                console.error(err)
+                res.status(400).send({ error: err });
+            });
+    } else res.status(400).send({ error: 'no game key provided' });
 });
 
 api.put('/game/:gameId/move', function(req, res) {
     let gameKey = req.body.key;
+    console.log('GAME KEY', gameKey);
     if (gameKey) {
         GameModel.find().getByGameKey(gameKey)
         .then((gameData) => {
