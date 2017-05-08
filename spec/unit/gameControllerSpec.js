@@ -16,8 +16,6 @@ describe('GameContoller', function() {
     }
 
     beforeEach(function () {
-        spyOn(GameModel.prototype, 'save').and.callFake( () => Promise.resolve(null));  
-        spyOn(HistoryModel.prototype, 'save').and.callFake( () => Promise.resolve(null));  
         gameController = new GameContoller();  
     });
 
@@ -43,6 +41,8 @@ describe('GameContoller', function() {
         });
 
         it('should create new game in db', function () {
+            spyOn(GameModel.prototype, 'save').and.callFake(() => Promise.resolve(null)); 
+            gameController.createGameInDB();
             expect(GameModel.prototype.save).toHaveBeenCalled();
         });
 

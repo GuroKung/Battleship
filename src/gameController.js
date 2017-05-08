@@ -12,19 +12,23 @@ const STATUS = { DEFENDER: 1 , ATTACKER: 2 };
 const MESSAGE_STATUS = { SUCCESS: 'success', ERROR: 'error' };
 
 class GameController {
-    constructor (boardSize = 10) {
-        this.key = randtoken.generate(16);
-        this.boardGame = this.createBoardGame(boardSize);
-        this.boardSize = boardSize;
-        this.status = STATUS.DEFENDER;
-        this.attackerMove = 0;
-        this.missedShot = 0;
-        this.pieces = [ 
+    constructor (key = randtoken.generate(16), boardGame, boardSize = 10, status = STATUS.DEFENDER,
+        attackerMove = 0, missedShot = 0, pieces = [
             new Piece('Battleship', 4), new Piece('Cruiser', 3), new Piece('Cruiser', 3),
-            new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Submarine', 1), 
-            new Piece('Submarine', 1), new Piece('Submarine', 1) , new Piece('Submarine', 1) 
-        ]
+            new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Submarine', 1),
+            new Piece('Submarine', 1), new Piece('Submarine', 1), new Piece('Submarine', 1)
+        ]) {
+        this.key = key;
+        this.boardGame = boardGame ? boardGame : this.createBoardGame(boardSize);
+        this.boardSize = boardSize;
+        this.status = status;
+        this.attackerMove = attackerMove;
+        this.missedShot = missedShot;
+        this.pieces = pieces;
+        // console.log("GAME START");
+    }
 
+    createGameInDB () {
         var game = new GameModel({
             key: this.key,
             status: this.status,
@@ -37,8 +41,14 @@ class GameController {
         game.save()
             .then(saved => console.log("Game Saved", saved))
             .catch(err => console.error("ERROR: Game Save Failed", err));
-        // console.log("GAME START");
-     }
+    }
+
+    createGameHistory(status, message){
+        var history = new HistoryModel({ status, message });
+        history.save()
+            .then(saved => console.log("History Saved", saved))
+            .catch(err => console.error("ERROR: History Save Failed", err));
+    }
 
     createBoardGame(size) {
         // create 2D array board game

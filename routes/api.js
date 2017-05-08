@@ -13,6 +13,7 @@ api.get('/', function(req, res) {
 
 api.post('/startgame', function(req, res) {
     const game = new GameController();
+    game.createGameInDB();
     let gameData = {};
     gameData = game.getData();
     gameData.message = "Battleship game start";
@@ -23,9 +24,7 @@ api.get('/game/:gameKey', function(req, res) {
     let gameData = {};
     let gameKey = req.params.gameKey;
     GameModel.find().getByGameKey(gameKey)
-    .then((gameData) => {
-        res.send(gameData);
-    })
+    .then((gameData) => res.send(gameData))
     .catch((err) => console.error(err));
 });
 
