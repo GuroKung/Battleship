@@ -1,14 +1,19 @@
 'use strict';
 
 const _ = require('lodash');
+const randtoken = require('rand-token');
 const db = require('./db');
+
 const Piece = require('./pieces/piece');
+const GameModel = require('../models/game');
+const HistoryModel = require('../models/history');
 
 const STATUS = { DEFENDER: 1 , ATTACKER: 2 };
 const MESSAGE_STATUS = { SUCCESS: 'success', ERROR: 'error' };
 
 class GameController {
     constructor (boardSize = 10) {
+        this.key = randtoken.generate(16);
         this.boardGame = this.createBoardGame(boardSize);
         this.boardSize = boardSize;
         this.status = STATUS.DEFENDER;
@@ -20,15 +25,23 @@ class GameController {
             new Piece('Submarine', 1), new Piece('Submarine', 1) , new Piece('Submarine', 1) 
         ]
 
+        var game = new GameModel({
+            key: this.key,
+            status: this.status,
+            boardGame: _.flatten(this.boardGame),
+            boardSize: this.boardSize,
+            attackerMove: this.attackerMove,
+            missedShot: this.missedShot,
+            pieces: this.pieces
+        });
+        game.save()
+            .then(saved => console.log("Game Saved", saved))
+            .catch(err => console.error("ERROR: Game Save Failed", err));
         // console.log("GAME START");
      }
 
     createBoardGame(size) {
         // create 2D array board game
-        /* TODO:
-        1. Create game 2d array 
-        2. Create New game in DB
-        3.  */
         var arr = [];
 
         for (var i = 0; i < size; i++) {
@@ -53,9 +66,9 @@ class GameController {
             }
         }
         _.pull(this.pieces, piece);
-        console.log('UPDATED BOARD');
-        console.log(this.printBoardGame());
-        console.log('UPDATED PIECES', this.pieces);
+        // console.log('UPDATED BOARD');
+        // console.log(this.printBoardGame());
+        // console.log('UPDATED PIECES', this.pieces);
         
     }
 
@@ -198,7 +211,7 @@ class GameController {
 
     endGame(){
         // change status in DB that this game is ended 
-        
+
     }
 
     getBoardGame(){

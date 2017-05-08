@@ -1,5 +1,7 @@
 var GameContoller = require('../../src/gameController');
 
+var GameModel = require('../../models/game');
+var HistoryModel = require('../../models/history');
 
 describe('Play A Game', function() {
 
@@ -11,6 +13,8 @@ describe('Play A Game', function() {
     }
 
     beforeEach(function () {
+        spyOn(GameModel.prototype, 'save').and.callFake( () => Promise.resolve(null));  
+        spyOn(HistoryModel.prototype, 'save').and.callFake( () => Promise.resolve(null));  
         gameController = new GameContoller();    
     });
 

@@ -1,5 +1,8 @@
 var _ = require('lodash');
 
+var GameModel = require('../../models/game');
+var HistoryModel = require('../../models/history');
+
 var GameContoller = require('../../src/gameController');
 var Piece = require('../../src/pieces/piece');
 
@@ -13,7 +16,9 @@ describe('GameContoller', function() {
     }
 
     beforeEach(function () {
-        gameController = new GameContoller();    
+        spyOn(GameModel.prototype, 'save').and.callFake( () => Promise.resolve(null));  
+        spyOn(HistoryModel.prototype, 'save').and.callFake( () => Promise.resolve(null));  
+        gameController = new GameContoller();  
     });
 
     it('should init board game', function () {
@@ -37,9 +42,9 @@ describe('GameContoller', function() {
             expect(gameController.createBoardGame(10).length).toBe(10);
         });
 
-        // it('should create new game in db', function () {
-        //     expect(false).toBe(true);
-        // });
+        it('should create new game in db', function () {
+            expect(GameModel.prototype.save).toHaveBeenCalled();
+        });
 
     });
 
@@ -73,10 +78,10 @@ describe('GameContoller', function() {
         });
 
 
-        // it('update game data in db', function () {
-        //     // gameController player moves 2-3 pieces
-        //     expect(false).toBe(true);
-        // });
+        it('update game data in db', function () {
+            // gameController player moves 2-3 pieces
+            expect(false).toBe(true);
+        });
     });
 
     describe('#playerMove(x, y, piece, axis)', function () {
@@ -369,7 +374,12 @@ describe('GameContoller', function() {
         it('change status in DB that this game is ended', function () {
             expect(false).toBe(true);
         });
-    });
-    
+    });   
+
+    describe('#createGameHistory()', function () {
+        it('should create can history in db', function () {
+            expect(false).toBe(true);
+        });
+    });  
 
 });
