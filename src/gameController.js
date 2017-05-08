@@ -30,7 +30,7 @@ class GameController {
         var arr = [];
 
         for (var i = 0; i < size; i++) {
-            arr[i] = [];
+            arr[i] = [''];
         }
 
         return arr;
@@ -52,7 +52,7 @@ class GameController {
         }
         _.pull(this.pieces, piece);
         console.log('UPDATED BOARD');
-        console.log(JSON.stringify(this.boardGame));
+        console.log(this.printBoardGame());
         console.log('UPDATED PIECES', this.pieces);
         
     }
@@ -78,11 +78,13 @@ class GameController {
         if(this.getStatus() == STATUS.DEFENDER) {
             if (!this.isOverlapped(transY,transX, piece, axis) && !this.isDirectlyAdjacent(transY,transX, piece, axis)){
                 this.updateBoardGame(transY,transX, piece, axis);
-                console.log("CAN PLACE A PIECE");
+                if(this.pieces.length == 0){
+                    this.status = STATUS.ATTACKER;
+                    return { status: 'success', message : `Successfully place a piece on position X:${x} Y:${y}, Now ATTACKER turn` }
+                }
                 return { status: 'success', message : `Successfully place a piece on position X:${x} Y:${y}` }
             }
             else {
-                console.log("CAN'T PLACE A PIECE BYE");
                 return { status: 'error' , message : `Cannot place a piece on position X:${x} Y:${y}, Please try agian` }
             }
         }
@@ -137,6 +139,17 @@ class GameController {
     positionAdapter (x, y){
         // transform board game position to array position 
         return { x: x-1, y: this.getBoardSize()-y }
+    }
+
+    printBoardGame(){
+        var boardText = '';
+        for(var i=0; i<this.boardSize; i++){
+            for (var j = 0; j < this.boardSize; j++) {
+                boardText += `| ${JSON.stringify(this.boardGame[i][j])} | `;
+            }
+            boardText+='\n';
+        }
+        console.log(boardText);
     }
 
     endGame(){

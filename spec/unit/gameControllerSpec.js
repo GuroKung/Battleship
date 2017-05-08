@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 var GameContoller = require('../../src/gameController');
 var Piece = require('../../src/pieces/piece');
 
@@ -42,15 +44,34 @@ describe('GameContoller', function() {
     });
 
     describe('#updateBoardGame()', function () {
-        // it('update current board game and remove from avaliable pieces', function () {
-        //     gameController.pieces = [ new Piece('Mock', 2), new Piece('Mock', 2) ]  
-        //     expect(gameController.pieces.length).toBe(3);
-        //     var moved = gameController.pieces[0];
-        //     gameController.updateBoardGame(2, 2 , moved, 'H');
-        //     expect(gameController.pieces.length).toBe(2);
-        //     expect(gameController.board[2][2]).toBe(moved);
-        //     expect(gameController.board[2][3]).toBe(moved);
-        // });
+        var moved;
+
+        beforeEach(function () {
+            gameController.boardSize = 5;
+                gameController.boardGame = [
+                    ['', '', '', '', '' ],
+                    ['' , '' , '' , '', '' ],
+                    ['' , '' , '' , '', '' ],
+                    ['', '' , '' , '', '' ],
+                    ['', '' , '' , '', '']
+                ];
+            gameController.pieces = [ new Piece('Mock', 2), new Piece('Mock', 2), new Piece('Mock', 2) ];
+            moved = gameController.pieces[0];
+        });
+
+        it('update current board game', function () {
+            gameController.updateBoardGame(2, 2 , moved, 'H');
+            expect(gameController.boardGame[2][2]).toBe(moved);
+            expect(gameController.boardGame[2][3]).toBe(moved);
+            expect(gameController.boardGame[2][4]).not.toBe(moved);
+        });
+
+        it('should remove placed piece from avaliable pieces', function () {
+            expect(gameController.pieces.length).toBe(3);
+            gameController.updateBoardGame(2, 2 , moved, 'H');
+            expect(gameController.pieces.length).toBe(2);
+        });
+
 
         // it('update game data in db', function () {
         //     // gameController player moves 2-3 pieces
@@ -63,6 +84,7 @@ describe('GameContoller', function() {
         describe('STATE = PLACE', function () {
 
             beforeEach(function () {
+                spyOn(GameContoller.prototype, 'updateBoardGame').and.callFake(_.noop);
                 gameController.boardSize = 5;
                 gameController.boardGame = [
                     ['X', 'X', 'X', '', '' ],
@@ -102,26 +124,31 @@ describe('GameContoller', function() {
                 expect(moved.message).toBe('Successfully place a piece on position X:4 Y:3');
             });
 
-            // it('should update board', function () {
-            //     expect(false).toBe(true);
-            // });
+            it('should update board', function () {
+                gameController.playerMove(4,3,mockPiece,'H');
+                expect(GameContoller.prototype.updateBoardGame).toHaveBeenCalled();
+            });
 
-            // it('should switch to ATTACK after all pieces has been placed', function () {
-            //     expect(false).toBe(true);
-            // });
+            it('should switch to ATTACK after all pieces has been placed', function () {
+                gameController.pieces = [];
+                var moved = gameController.playerMove(4,3,mockPiece,'H');
+                expect(moved.status).toBe('success');
+                expect(moved.message).toBe('Successfully place a piece on position X:4 Y:3, Now ATTACKER turn');
+                expect(gameController.getStatus()).toBe(2);
+            });
 
         });
 
-        // describe('STATE = ATTCK', function () {
-        //     it('should create empty 10*10 board game', function () {
-        //         expect(false).toBe(true);
-        //     });
+        describe('STATE = ATTCK', function () {
+            it('should create empty 10*10 board game', function () {
+                expect(false).toBe(true);
+            });
 
-        //     it('should create new game in db', function () {
-        //         expect(false).toBe(true);
-        //     });
+            it('should create new game in db', function () {
+                expect(false).toBe(true);
+            });
 
-        // });
+        });
 
     });
 
