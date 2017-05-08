@@ -50,10 +50,10 @@ describe('GameContoller', function() {
             gameController.boardSize = 5;
                 gameController.boardGame = [
                     ['', '', '', '', '' ],
-                    ['' , '' , '' , '', '' ],
-                    ['' , '' , '' , '', '' ],
-                    ['', '' , '' , '', '' ],
-                    ['', '' , '' , '', '']
+                    ['', '', '', '', '' ],
+                    ['', '', '', '', '' ],
+                    ['', '', '', '', '' ],
+                    ['', '', '', '', '' ]
                 ];
             gameController.pieces = [ new Piece('Mock', 2), new Piece('Mock', 2), new Piece('Mock', 2) ];
             moved = gameController.pieces[0];
@@ -140,19 +140,167 @@ describe('GameContoller', function() {
         });
 
         describe('STATE = ATTCK', function () {
-            it('should create empty 10*10 board game', function () {
-                expect(false).toBe(true);
+            it('should call for attack target', function () {
+                gameController.status = 2;
+                spyOn(GameContoller.prototype, 'attackTarget').and.callFake(_.noop);
+                gameController.playerMove(1,1);
+                expect(GameContoller.prototype.attackTarget).toHaveBeenCalled();
             });
-
-            it('should create new game in db', function () {
-                expect(false).toBe(true);
-            });
-
         });
 
     });
 
-    describe('#isOverlapped(x, y, piece, axis)', function () {
+    describe('#attackTarget(y, x)', function () {
+        var attack
+
+        beforeEach(function () {
+            spyOn(GameContoller.prototype, 'endGame').and.callFake(_.noop);
+            gameController.status = 2;
+            gameController.boardSize = 5;
+            gameController.boardGame = [
+                [new Piece('Mock1', 3), new Piece('Mock1', 3), new Piece('Mock1', 3), '', '' ],
+                ['' , '' , '' , '', '' ],
+                ['' , '' , '' , '', '' ],
+                [new Piece('Mock2', 2), '' , '' , '', '' ],
+                [new Piece('Mock2', 2), '' , '' , '', new Piece('Mock3', 1)]
+            ];
+        });
+
+        it('should say Miss when attack empty square', function () {
+            attack = gameController.attackTarget(1, 1);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Miss');
+
+            attack = gameController.attackTarget(2, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Miss');
+        });
+
+        it('should say Hit when hit ship but not sunk', function () {
+            attack = gameController.attackTarget(4, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+        });
+
+        it('should remove the piece after hit', function () {
+            attack = gameController.attackTarget(4, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+            expect(gameController.getBoardGame()[4][0]).toBe('');
+        });
+
+        // Known bug
+        it('should be able to sunk ship which already loss in the middle', function () {
+            /* Attack Step
+            ----------------------- 
+            1. | X | X | X |  |  |
+            2. | X |   | X |  |  |
+            3. |   |   | X |  |  | 
+            4. SHIP SUNK !
+            */
+            attack = gameController.attackTarget(0, 1);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(0, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(0, 2);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('You just sank the Mock1');
+        });
+
+        it('should say You just sank the "Mock"', function () {
+            attack = gameController.attackTarget(4, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(3, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('You just sank the Mock2');
+        });
+
+        it('should increase attacker move', function () {
+            attack = gameController.attackTarget(0, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(0, 1);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(0, 2);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('You just sank the Mock1');
+
+            expect(gameController.getAttackerMove()).toBe(3);
+        });
+
+        it('should increase missed shots', function () {
+            attack = gameController.attackTarget(1, 1);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Miss');
+
+            attack = gameController.attackTarget(2, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Miss');
+
+            expect(gameController.getMissedShots()).toBe(2);
+        });
+
+        it('should say Win ! You completed the game in 6 moves', function () {
+            attack = gameController.attackTarget(0, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(0, 1);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(0, 2);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('You just sank the Mock1');
+
+            attack = gameController.attackTarget(4, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Hit');
+
+            attack = gameController.attackTarget(3, 0);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('You just sank the Mock2');
+
+            attack = gameController.attackTarget(4, 4);
+            expect(attack.status).toBe('success');
+            expect(attack.message).toBe('Win ! You completed the game in 6 moves ​and total of 0 missed shots​.');
+        });
+    });
+
+    describe('#isGameEnd()', function () {
+        beforeEach(function () {
+            gameController.boardSize = 3;
+        });
+
+        it('should not end the game while pieces remain on board', function () {
+            gameController.boardGame = [
+                ['X', '', 'X'],
+                ['X', '', ''],
+                ['X', '', '']
+            ];
+            expect(gameController.isGameEnd()).toBe(false);
+        });
+
+        it('should end game when there are no pieces left', function () {
+            gameController.boardGame = [
+                ['', '', ''],
+                ['', '', ''],
+                ['', '', '']
+            ];
+            expect(gameController.isGameEnd()).toBe(true);
+        });
+    });
+
+    describe('#isOverlapped(x, y, size, axis)', function () {
         beforeEach(function () {
             gameController.boardSize = 3;
             gameController.boardGame = [
@@ -163,19 +311,19 @@ describe('GameContoller', function() {
         });
 
         it('should be overlapped other pieces', function () {
-            expect(gameController.isOverlapped(0, 2, mockPiece, 'V')).toBe(true);
-            expect(gameController.isOverlapped(0, 1, mockPiece, 'H')).toBe(true);
-            expect(gameController.isOverlapped(2, 0, mockPiece, 'H')).toBe(true);
+            expect(gameController.isOverlapped(0, 2, mockPiece.getSize(), 'V')).toBe(true);
+            expect(gameController.isOverlapped(0, 1, mockPiece.getSize(), 'H')).toBe(true);
+            expect(gameController.isOverlapped(2, 0, mockPiece.getSize(), 'H')).toBe(true);
         });
 
         it('should not be overlapped other pieces', function () {
-            expect(gameController.isOverlapped(1, 2, mockPiece, 'V')).toBe(false);
-            expect(gameController.isOverlapped(0, 1, mockPiece, 'V')).toBe(false);
-            expect(gameController.isOverlapped(2, 1, mockPiece, 'H')).toBe(false);
+            expect(gameController.isOverlapped(1, 2, mockPiece.getSize(), 'V')).toBe(false);
+            expect(gameController.isOverlapped(0, 1, mockPiece.getSize(), 'V')).toBe(false);
+            expect(gameController.isOverlapped(2, 1, mockPiece.getSize(), 'H')).toBe(false);
         });
     });
 
-    describe('#isDirectlyAdjacent(x, y, piece, axis)', function () {
+    describe('#isDirectlyAdjacent(x, y, size, axis)', function () {
         beforeEach(function () {
             gameController.boardSize = 5;
             gameController.boardGame = [
@@ -188,15 +336,15 @@ describe('GameContoller', function() {
         });
 
         it('should be directly adjacent other pieces', function () {
-            expect(gameController.isDirectlyAdjacent(1, 0, mockPiece, 'V')).toBe(true);
-            expect(gameController.isDirectlyAdjacent(4, 1, mockPiece, 'H')).toBe(true);
-            expect(gameController.isDirectlyAdjacent(1, 3, mockPiece, 'V')).toBe(true);
+            expect(gameController.isDirectlyAdjacent(1, 0, mockPiece.getSize(), 'V')).toBe(true);
+            expect(gameController.isDirectlyAdjacent(4, 1, mockPiece.getSize(), 'H')).toBe(true);
+            expect(gameController.isDirectlyAdjacent(1, 3, mockPiece.getSize(), 'V')).toBe(true);
         });
 
         it('should not be directly adjacent other pieces', function () {
-            expect(gameController.isDirectlyAdjacent(2, 2, mockPiece, 'V')).toBe(false);
-            expect(gameController.isDirectlyAdjacent(3, 2, mockPiece, 'V')).toBe(false);
-            expect(gameController.isDirectlyAdjacent(2, 2, mockPiece, 'H')).toBe(false);
+            expect(gameController.isDirectlyAdjacent(2, 2, mockPiece.getSize(), 'V')).toBe(false);
+            expect(gameController.isDirectlyAdjacent(3, 2, mockPiece.getSize(), 'V')).toBe(false);
+            expect(gameController.isDirectlyAdjacent(2, 2, mockPiece.getSize(), 'H')).toBe(false);
         });
     });
 
@@ -217,14 +365,11 @@ describe('GameContoller', function() {
         });
     });
 
-    // describe('#endGame()', function () {
-    //     it('should show game results', function () {
-    //         expect(false).toBe(true);
-    //     });
-
-    //     it('change status in DB that this game is ended', function () {
-    //         expect(false).toBe(true);
-    //     });
-    // });
+    describe('#endGame()', function () {
+        it('change status in DB that this game is ended', function () {
+            expect(false).toBe(true);
+        });
+    });
+    
 
 });

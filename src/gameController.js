@@ -4,14 +4,16 @@ const _ = require('lodash');
 const db = require('./db');
 const Piece = require('./pieces/piece');
 
-const STATUS = { DEFENDER: 1 , ATTACKER: 2 } 
+const STATUS = { DEFENDER: 1 , ATTACKER: 2 };
+const MESSAGE_STATUS = { SUCCESS: 'success', ERROR: 'error' };
 
 class GameController {
     constructor (boardSize = 10) {
         this.boardGame = this.createBoardGame(boardSize);
         this.boardSize = boardSize;
         this.status = STATUS.DEFENDER;
-
+        this.attackerMove = 0;
+        this.missedShot = 0;
         this.pieces = [ 
             new Piece('Battleship', 4), new Piece('Cruiser', 3), new Piece('Cruiser', 3),
             new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Destroyer', 2), new Piece('Submarine', 1), 
@@ -76,28 +78,70 @@ class GameController {
         var transY = this.positionAdapter(x,y).y;
 
         if(this.getStatus() == STATUS.DEFENDER) {
-            if (!this.isOverlapped(transY,transX, piece, axis) && !this.isDirectlyAdjacent(transY,transX, piece, axis)){
+            if (!this.isOverlapped(transY,transX, piece.getSize(), axis) && !this.isDirectlyAdjacent(transY,transX, piece.getSize(), axis)){
                 this.updateBoardGame(transY,transX, piece, axis);
                 if(this.pieces.length == 0){
                     this.status = STATUS.ATTACKER;
-                    return { status: 'success', message : `Successfully place a piece on position X:${x} Y:${y}, Now ATTACKER turn` }
+                    return { status: MESSAGE_STATUS.SUCCESS, message : `Successfully place a piece on position X:${x} Y:${y}, Now ATTACKER turn` }
                 }
-                return { status: 'success', message : `Successfully place a piece on position X:${x} Y:${y}` }
+                return { status: MESSAGE_STATUS.SUCCESS, message : `Successfully place a piece on position X:${x} Y:${y}` }
             }
             else {
-                return { status: 'error' , message : `Cannot place a piece on position X:${x} Y:${y}, Please try agian` }
+                return { status: MESSAGE_STATUS.ERROR , message : `Cannot place a piece on position X:${x} Y:${y}, Please try agian` }
             }
         }
         else if (this.getStatus() == STATUS.ATTACKER) {
-            // implement
+            return this.attackTarget(transY, transX);
         }
         else {
             console.error("ERROR: Game status not supported");
         }
     }
 
-    isOverlapped(y, x, piece, axis){
-        for(var i=0; i<piece.getSize(); i++){
+    attackTarget(y, x){
+        /*
+        The list below are the response messages from API based on the current game situation.
+            - “Miss”​ when the Attacker​ misses.
+            - “Hit”​ when a ship has been hit but not sunk. Do NOT provide any additional info about what
+            kind of ship was hit.
+            - “You just sank the X”​ followed by a the ship type. Show this message when the Attacker​ has
+            successfully sunk a ship, i.e. all squares making up that ship on the board has successfully
+            been hit..
+            - “Win ! You completed the game in X moves”​ together with the number of moves (attacks) it
+            took the Attacker​ to sink all the ships ​and a total of all missed shots​.
+        */
+        this.attackerMove++;
+        if (!this.isOverlapped(y,x, 1, 'V')) {
+            this.missedShot++;
+            return { status: MESSAGE_STATUS.SUCCESS, message : 'Miss' };
+        }
+        else if (this.isDirectlyAdjacent(y , x, 1, 'V')) {
+            this.boardGame[y][x] = '';
+            return { status: MESSAGE_STATUS.SUCCESS, message : 'Hit' };
+        }
+        else if (!this.isDirectlyAdjacent(y , x, 1, 'V')) {
+            let piece = this.boardGame[y][x];
+            this.boardGame[y][x] = '';
+            if (this.isGameEnd()) {
+                this.endGame();
+                return { status: MESSAGE_STATUS.SUCCESS, message : `Win ! You completed the game in ${this.getAttackerMove()} moves ​and total of ${this.missedShot} missed shots​.` };
+            }
+            return { status: MESSAGE_STATUS.SUCCESS, message : `You just sank the ${piece.getName()}` };
+        }
+    }
+
+    isGameEnd () {
+        // no pieces left on the board
+        for (var i = 0; i < this.boardSize; i++) {
+            for (var j = 0; j < this.boardSize; j++) {
+                if (this.boardGame[i][j] != '') return false; 
+            }
+        }
+        return true;
+    }
+
+    isOverlapped(y, x, size, axis){
+        for(var i=0; i<size; i++){
             if (axis == 'H'){
                 if (this.getBoardGame()[y] && this.getBoardGame()[y][x+i]) return true;
             }
@@ -108,8 +152,8 @@ class GameController {
         return false;
     }
 
-    isDirectlyAdjacent(y,x, piece, axis){
-        for(var i=0; i<piece.getSize(); i++){
+    isDirectlyAdjacent(y,x, size, axis){
+        for(var i=0; i<size; i++){
             if (axis == 'H'){
                 if ((this.getBoardGame()[y-1] && this.getBoardGame()[y-1][x-1+i]) ||
                 (this.getBoardGame()[y-1] && this.getBoardGame()[y-1][x+i])  || 
@@ -153,9 +197,8 @@ class GameController {
     }
 
     endGame(){
-        /* TODO: 
-        1. show game results > complete game in X moves
-        2. change status in DB that this game is ended */
+        // change status in DB that this game is ended 
+        
     }
 
     getBoardGame(){
@@ -168,6 +211,14 @@ class GameController {
 
     getBoardSize(){
         return this.boardSize;
+    }
+
+    getAttackerMove(){
+        return this.attackerMove;
+    }
+
+    getMissedShots(){
+        return this.missedShot;
     }
 
     getData(){ 
