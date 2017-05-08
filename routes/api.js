@@ -1,10 +1,7 @@
-import express from 'express';
-import _ from 'lodash';
+const express = require('express');
+const _ = require('lodash');
 
-import GameController from '../src/gameController';
-
-// var constants = require('../src/constants');
-// var mysqlDB = require('../src/storage/mysqlDB');
+const GameController = require('../src/gameController');
 
 var api = express.Router();
 
@@ -13,9 +10,12 @@ api.get('/', function(req, res) {
 });
 
 api.post('/startgame', function(req, res) {
+    console.log('START GAME');
     const game = new GameController();
-    res.send("Welcome to Battleship game");
-    // return game init status and game info + gameId
+    let gameData = {};
+    gameData = game.getData();
+    gameData.message = "Battleship game start";
+    res.json(gameData);
 });
 
 api.get('/game/:gameId', function(req, res) {

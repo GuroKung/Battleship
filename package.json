@@ -7,7 +7,8 @@
     "start": "node src/app.js --exec babel-node --presets es2015,stage-2",
     "start:w": "nodemon src/app.js --exec babel-node --presets es2015,stage-2",
     "test": "babel-node node_modules/.bin/jasmine",
-    "test:unit": "babel-node node_modules/.bin/jasmine spec/unit"
+    "unit-test": "babel-node node_modules/.bin/jasmine spec/unit/gameControllerSpec.js",
+    "api-test": "babel-node node_modules/.bin/jasmine spec/intregation/apiSpec.js"
   },
   "repository": {
     "type": "git",

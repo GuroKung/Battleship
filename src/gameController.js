@@ -45,9 +45,9 @@ class GameController {
         var arr = [];
 
         for (var i = 0; i < size; i++) {
-            arr[i] = [''];
+            arr[i] = Array(size).join(".").split(".");
         }
-
+        
         return arr;
     }
     
@@ -235,15 +235,15 @@ class GameController {
     }
 
     getData(){ 
-        /*
         return {
-            gameId: xx,
-            status: 'DEFENDER',
-            boardSize: 10,
-            board: [],
-            attackerMoves: 0
+            key: this.key,
+            status: this.status,
+            boardGame: this.boardGame,
+            boardSize: this.boardSize,
+            attackerMove: this.attackerMove,
+            missedShot: this.missedShot,
+            pieces: this.pieces
         }
-        */
     }
 }
 
