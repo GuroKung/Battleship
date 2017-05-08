@@ -16,12 +16,12 @@ var GameSchema = new Schema({
 GameSchema.query.getByGameKey = function (key) {
    var self = this;
    return new Promise(function (resolve, reject) {
-        self.findOne({key}).exec((err, gameData) => {
+       self.findOne({ key }).exec((err, gameData) => {
+           if (err) reject(err);
            gameData = gameData.toObject();
            gameData.boardGame = _.chunk(gameData.boardGame, gameData.boardSize);
-           if (err) reject(err);
-           else resolve(gameData);
-        });
+           resolve(gameData);
+       });
    });
 }
 

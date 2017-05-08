@@ -62,10 +62,10 @@ class GameController {
     }
     
     updateBoardGame(y, x, piece, axis){
-        /* TODO:
+        /* 
         - update current board game 
         - update current pieces
-        - create game history 
+        - update game board in DB
         */
         for (var i = 0; i < piece.getSize(); i++) {
             if (axis == 'H') {
@@ -76,6 +76,10 @@ class GameController {
             }
         }
         _.pull(this.pieces, piece);
+
+        // should handle updated & return updated document
+        GameModel.findOneAndUpdate({ key: this.key }, { boardGame: _.flatten(this.boardGame) });
+
         // console.log('UPDATED BOARD');
         // console.log(this.printBoardGame());
         // console.log('UPDATED PIECES', this.pieces);

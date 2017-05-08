@@ -2,7 +2,7 @@
 _An API for the famous board game_  
 
 ## Game Data
-_Example of game data for this API_  
+_Example of game data for this API_
 ```    
 {
 "_id": OBJECT_ID,
@@ -79,6 +79,7 @@ _For DEFENDER Move_
 {
     "key": YOUR_GAME_KEY,
     "content": {
+        "status": 1,
         "position" : {
             "x" : 0,
             "y": 1
@@ -99,15 +100,10 @@ _For ATTACKER Move_
 {
     "key": YOUR_GAME_KEY,
     "content": {
+        "status": 2,
         "position" : {
             "x" : 0,
             "y": 1
-        },
-        "meta": {
-            "piece": {
-                "size": 4,
-                "name": "Battleship"
-            }
         }
     }
 }
@@ -118,4 +114,8 @@ _For ATTACKER Move_
 ---
 'V' means vertically​  
 'H' means horizontally
-    
+
+### Status
+---
+1 means DEFENDER
+2 means ATTACKER

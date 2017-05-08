@@ -77,13 +77,13 @@ describe('GameContoller', function() {
             expect(gameController.pieces.length).toBe(2);
         });
 
-
+        // should stub call to update document in DB
         it('update game data in db', function () {
-            // gameController player moves 2-3 pieces
             expect(false).toBe(true);
         });
     });
 
+    // not 100% unit test
     describe('#playerMove(x, y, piece, axis)', function () {
 
         describe('STATE = PLACE', function () {
