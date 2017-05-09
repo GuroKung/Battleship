@@ -25,12 +25,15 @@ api.get('/game/:gameKey', function(req, res) {
     let gameKey = req.params.gameKey;
     if (gameKey) {
         GameModel.find().getByGameKey(gameKey)
-            .then((gameData) => res.send(gameData))
+            .then((gameData) => {
+                if(gameData.status == 'error') res.status(404).send(gameData);
+                return res.send(gameData)
+            })
             .catch((err) => {
                 console.error(err)
-                res.status(400).send({ error: err });
+                return res.status(400).send({ error: err });
             });
-    } else res.status(400).send({ error: 'no game key provided' });
+    } else return res.status(400).send({ error: 'no game key provided' });
 });
 
 api.put('/game/:gameId/move', function(req, res) {
@@ -43,21 +46,24 @@ api.put('/game/:gameId/move', function(req, res) {
                 gameData.attackerMove, gameData.missedShot, gameData.pieces);
             let content = req.body.content;
             let result = {};
-            switch (content.status) {
-                case 1:
-                    result = game.playerMove(content.position.x, content.position.y, content.meta.piece, content.meta.axis);    
-                    break;
-                case 2:
-                    result = game.playerMove(content.position.x, content.position.y); 
-                    break;
+            if (content.status === gameData.status) {
+                switch (content.status) {
+                    case 1:
+                        result = game.playerMove(content.position.x, content.position.y, content.meta.piece, content.meta.axis);
+                        break;
+                    case 2:
+                        result = game.playerMove(content.position.x, content.position.y);
+                        break;
+                }
             }
-            res.json(result)
+            else result = { status: 'error', message: 'move in wrong turn' };
+            return res.json(result)
         })
         .catch((err) => {
             console.error(err)
-            res.status(400).send({ error : err});
+            return res.status(400).send({ error : err});
         });
-    } else res.status(400).send({ error : 'no game key provided'});
+    } else return res.status(400).send({ error : 'no game key provided'});
 });
 
 api.get('/game/:gameId/history', function(req, res) {

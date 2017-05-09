@@ -43,6 +43,17 @@ class GameController {
             .catch(err => console.error("ERROR: Game Save Failed", err));
     }
 
+    updateGameInDB (data) {
+        GameModel.findOneAndUpdate({ key: this.key }, data)
+        .exec((err, game) =>{
+            if(err) console.log('ERROR: ', err);
+        });
+
+        console.log('UPDATED BOARD');
+        console.log(this.printBoardGame());
+        console.log('UPDATED PIECES', this.pieces);
+    }
+
     createGameHistory(status, message){
         var history = new HistoryModel({ status, message });
         history.save()
@@ -62,7 +73,7 @@ class GameController {
     }
     
     updateBoardGame(y, x, piece, axis){
-        /* 
+        /* Place piece on board
         - update current board game 
         - update current pieces
         - update game board in DB
@@ -84,15 +95,7 @@ class GameController {
         }
 
         // should handle updated & return updated document
-        GameModel.findOneAndUpdate({ key: this.key }, { boardGame: _.flatten(this.boardGame), pieces: this.pieces })
-        .exec((err, game) =>{
-            if(err) console.log('ERROR: ', err);
-        });
-
-        // console.log('UPDATED BOARD');
-        // console.log(this.printBoardGame());
-        // console.log('UPDATED PIECES', this.pieces);
-        
+        this.updateGameInDB({ boardGame: _.flatten(this.boardGame), pieces: this.pieces });        
     }
 
     playerMove(x, y, piece, axis) {
@@ -118,6 +121,7 @@ class GameController {
                 this.updateBoardGame(transY,transX, piece, axis);
                 if(this.pieces.length == 0){
                     this.status = STATUS.ATTACKER;
+                    this.updateGameInDB ({ status: this.status });
                     return { status: MESSAGE_STATUS.SUCCESS, message : `Successfully place a piece on position X:${x} Y:${y}, Now ATTACKER turn` }
                 }
                 return { status: MESSAGE_STATUS.SUCCESS, message : `Successfully place a piece on position X:${x} Y:${y}` }
@@ -149,20 +153,23 @@ class GameController {
         this.attackerMove++;
         if (!this.isOverlapped(y,x, 1, 'V')) {
             this.missedShot++;
+            this.updateGameInDB ({ missedShot: this.missedShot, attackerMove: this.attackerMove });
             return { status: MESSAGE_STATUS.SUCCESS, message : 'Miss' };
         }
         else if (this.isDirectlyAdjacent(y , x, 1, 'V')) {
             this.boardGame[y][x] = '';
+            this.updateGameInDB ({ boardGame: _.flatten(this.boardGame), missedShot: this.missedShot, attackerMove: this.attackerMove });
             return { status: MESSAGE_STATUS.SUCCESS, message : 'Hit' };
         }
         else if (!this.isDirectlyAdjacent(y , x, 1, 'V')) {
             let piece = this.boardGame[y][x];
             this.boardGame[y][x] = '';
+            this.updateGameInDB ({ boardGame: _.flatten(this.boardGame), missedShot: this.missedShot, attackerMove: this.attackerMove });
             if (this.isGameEnd()) {
                 this.endGame();
                 return { status: MESSAGE_STATUS.SUCCESS, message : `Win ! You completed the game in ${this.getAttackerMove()} moves ​and total of ${this.missedShot} missed shots​.` };
             }
-            return { status: MESSAGE_STATUS.SUCCESS, message : `You just sank the ${piece.getName()}` };
+            return { status: MESSAGE_STATUS.SUCCESS, message : `You just sank the ${piece.name}` };
         }
     }
 

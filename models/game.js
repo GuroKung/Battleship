@@ -18,6 +18,7 @@ GameSchema.query.getByGameKey = function (key) {
    return new Promise(function (resolve, reject) {
        self.findOne({ key }).exec((err, gameData) => {
            if (err) reject(err);
+           if(!gameData) resolve({ status: 'error', message: 'game with the given key not found'});
            gameData = gameData.toObject();
            gameData.boardGame = _.chunk(gameData.boardGame, gameData.boardSize);
            resolve(gameData);
