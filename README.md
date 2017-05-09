@@ -1,6 +1,11 @@
 # Battle
 _An API for the famous board game_  
 
+## How to run
+clone this repository
+> npm install
+> npm start
+
 ## Game Data
 _Example of game data for this API_
 ```    
@@ -77,7 +82,6 @@ RESPONSE: Game Data (by given game key)
 _For DEFENDER Move_
 ```
 {
-    "key": YOUR_GAME_KEY,
     "content": {
         "status": 1,
         "position" : {
@@ -98,7 +102,6 @@ _For DEFENDER Move_
 _For ATTACKER Move_
 ```
 {
-    "key": YOUR_GAME_KEY,
     "content": {
         "status": 2,
         "position" : {
@@ -119,3 +122,7 @@ _For ATTACKER Move_
 ---
 1 means DEFENDER
 2 means ATTACKER
+
+### Test
+---
+> npm test

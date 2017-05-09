@@ -278,7 +278,7 @@ describe('GameContoller', function() {
 
             attack = gameController.attackTarget(4, 4);
             expect(attack.status).toBe('success');
-            expect(attack.message).toBe('Win ! You completed the game in 6 moves ​and total of 0 missed shots​.');
+            expect(attack.message).toBe('Win ! You completed the game in 6 moves and total of 0 missed shots​.');
         });
     });
 

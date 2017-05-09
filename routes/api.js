@@ -23,24 +23,21 @@ api.post('/startgame', function(req, res) {
 api.get('/game/:gameKey', function(req, res) {
     let gameData = {};
     let gameKey = req.params.gameKey;
-    if (gameKey) {
-        GameModel.find().getByGameKey(gameKey)
-            .then((gameData) => {
-                if(gameData.status == 'error') res.status(404).send(gameData);
-                return res.send(gameData)
-            })
-            .catch((err) => {
-                console.error(err)
-                return res.status(400).send({ error: err });
-            });
-    } else return res.status(400).send({ error: 'no game key provided' });
+    GameModel.find().getByGameKey(gameKey)
+        .then((gameData) => {
+            if (gameData.status == 'error') res.status(404).send(gameData);
+            return res.send(gameData)
+        })
+        .catch((err) => {
+            console.error(err)
+            return res.status(400).send({ error: err });
+        });
 });
 
-api.put('/game/:gameId/move', function(req, res) {
-    let gameKey = req.body.key;
+api.put('/game/:gameKey/move', function(req, res) {
+    let gameKey = req.params.gameKey;
     console.log('GAME KEY', gameKey);
-    if (gameKey) {
-        GameModel.find().getByGameKey(gameKey)
+    GameModel.find().getByGameKey(gameKey)
         .then((gameData) => {
             let game = new GameController(gameData.key, gameData.boardGame, gameData.boardSize, gameData.status,
                 gameData.attackerMove, gameData.missedShot, gameData.pieces);
@@ -61,9 +58,8 @@ api.put('/game/:gameId/move', function(req, res) {
         })
         .catch((err) => {
             console.error(err)
-            return res.status(400).send({ error : err});
+            return res.status(400).send({ error: err });
         });
-    } else return res.status(400).send({ error : 'no game key provided'});
 });
 
 api.get('/game/:gameId/history', function(req, res) {

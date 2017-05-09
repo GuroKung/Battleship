@@ -167,7 +167,7 @@ class GameController {
             this.updateGameInDB ({ boardGame: _.flatten(this.boardGame), missedShot: this.missedShot, attackerMove: this.attackerMove });
             if (this.isGameEnd()) {
                 this.endGame();
-                return { status: MESSAGE_STATUS.SUCCESS, message : `Win ! You completed the game in ${this.getAttackerMove()} moves ​and total of ${this.missedShot} missed shots​.` };
+                return { status: MESSAGE_STATUS.SUCCESS, message : `Win ! You completed the game in ${this.getAttackerMove()} moves and total of ${this.missedShot} missed shots​.` };
             }
             return { status: MESSAGE_STATUS.SUCCESS, message : `You just sank the ${piece.name}` };
         }
