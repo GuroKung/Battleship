@@ -53,6 +53,7 @@ describe('GameContoller', function() {
         var moved;
 
         beforeEach(function () {
+            spyOn(GameContoller.prototype, 'updateGameInDB').and.callFake(_.noop);
             gameController.boardSize = 5;
                 gameController.boardGame = [
                     ['', '', '', '', '' ],
@@ -78,9 +79,9 @@ describe('GameContoller', function() {
             expect(gameController.pieces.length).toBe(2);
         });
 
-        // should stub call to update document in DB
         it('update game data in db', function () {
-            expect(false).toBe(true);
+            gameController.updateBoardGame(2, 2 , moved, 'H');
+            expect(GameContoller.prototype.updateGameInDB).toHaveBeenCalled();
         });
     });
 
