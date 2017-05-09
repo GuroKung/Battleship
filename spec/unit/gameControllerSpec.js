@@ -372,8 +372,15 @@ describe('GameContoller', function() {
     });
 
     describe('#endGame()', function () {
-        it('change status in DB that this game is ended', function () {
-            expect(false).toBe(true);
+        beforeEach(function () {
+            spyOn(GameContoller.prototype, 'updateGameInDB').and.callFake(_.noop);
+            gameController.endGame();
+        });
+        it('should change status to END', function () {
+            expect(gameController.status).toBe(3);
+        });
+        it('should change status in DB that this game is ended', function () {
+            expect(GameContoller.prototype.updateGameInDB).toHaveBeenCalled();
         });
     });   
 

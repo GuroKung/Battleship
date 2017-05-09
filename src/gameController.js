@@ -8,7 +8,7 @@ const Piece = require('./pieces/piece');
 const GameModel = require('../models/game');
 const HistoryModel = require('../models/history');
 
-const STATUS = { DEFENDER: 1 , ATTACKER: 2 };
+const STATUS = { DEFENDER: 1 , ATTACKER: 2 , END: 3 };
 const MESSAGE_STATUS = { SUCCESS: 'success', ERROR: 'error' };
 
 class GameController {
@@ -240,8 +240,9 @@ class GameController {
     }
 
     endGame(){
-        // change status in DB that this game is ended 
-
+        // change status in DB that this game is ended
+        this.status = STATUS.END;
+        this.updateGameInDB ({ status: this.status });
     }
 
     getBoardGame(){

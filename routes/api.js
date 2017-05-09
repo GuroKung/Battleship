@@ -53,7 +53,8 @@ api.put('/game/:gameKey/move', function(req, res) {
                         break;
                 }
             }
-            else result = { status: 'error', message: 'move in wrong turn' };
+            else if (gameData.status === 3) result = { status: 'error', message: 'Game already ended'}; 
+            else result = { status: 'error', message: 'Move in wrong turn' };
             return res.json(result)
         })
         .catch((err) => {
